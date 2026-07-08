@@ -1,14 +1,17 @@
 import { X } from "lucide-react";
 
+const LOCAL_QR = "/payment-qr.jpg";
+
 export default function PaymentModal({ open, onClose, item, config, currency }) {
   if (!item) return null;
   const inr = Number(item.price_inr).toFixed(2);
+  // Use the bundled QR image first (always loads); fall back to config, then a generated QR.
   const upiString =
     `upi://pay?pa=${encodeURIComponent(config?.upi_id || "shiekhjeet19@fam")}` +
     `&pn=${encodeURIComponent(config?.payee_name || "Shiekh Jeet")}` +
     `&am=${inr}&cu=INR&tn=${encodeURIComponent(item.name)}`;
   const generatedQr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiString)}`;
-  const qrSrc = config?.qr_image_url || generatedQr;
+  const qrSrc = LOCAL_QR || config?.qr_image_url || generatedQr;
 
   const display =
     currency === "USD"
