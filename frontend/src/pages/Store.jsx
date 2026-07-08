@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Instagram, LogOut, Server, Zap, Copy, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import PaymentModal from "@/components/store/PaymentModal";
+import { FALLBACK_CONFIG, FALLBACK_PRODUCTS } from "@/data/fallback";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const LOGO = "/server-icon.png";
@@ -116,9 +117,15 @@ export default function Store() {
   };
 
   useEffect(() => {
-    axios.get(`${API}/config`).then((r) => setConfig(r.data)).catch(() => {});
-    axios.get(`${API}/products`).then((r) => setProducts(r.data)).catch(() => {});
-    axios.get(`${API}/server-status`).then((r) => setStatus(r.data)).catch(() => {});
+    axios.get(`${API}/config`)
+      .then((r) => setConfig(r.data && Object.keys(r.data).length ? r.data : FALLBACK_CONFIG))
+      .catch(() => setConfig(FALLBACK_CONFIG));
+    axios.get(`${API}/products`)
+      .then((r) => setProducts(Array.isArray(r.data) && r.data.length ? r.data : FALLBACK_PRODUCTS))
+      .catch(() => setProducts(FALLBACK_PRODUCTS));
+    axios.get(`${API}/server-status`)
+      .then((r) => setStatus(r.data))
+      .catch(() => setStatus({ online: false, players_online: 0, players_max: 0, unavailable: true }));
   }, []);
 
   const ranks = useMemo(() => products.filter((p) => p.category === "rank"), [products]);
@@ -200,7 +207,7 @@ export default function Store() {
                   <small>Players online</small>
                   <strong data-testid="players-online">
                     <span className={`status-dot ${status?.online ? "on" : "off"}`} style={{ marginRight: 8 }} />
-                    {status ? (status.online ? `${status.players_online}/${status.players_max}` : "Offline") : "…"}
+                    {status ? (status.unavailable ? "N/A" : (status.online ? `${status.players_online}/${status.players_max}` : "Offline")) : "…"}
                   </strong>
                 </div>
                 <div className="stat-card">
@@ -329,14 +336,14 @@ export default function Store() {
                 <span className={`status-dot ${status?.online ? "on" : "off"}`} />
               </div>
               <div className="tier-name" style={{ color: status?.online ? "var(--green-2)" : "var(--crimson-2)" }}>
-                {status ? (status.online ? "ONLINE" : "OFFLINE") : "…"}
+                {status ? (status.unavailable ? "N/A" : (status.online ? "ONLINE" : "OFFLINE")) : "…"}
               </div>
               <p className="tier-copy" style={{ minHeight: "auto" }}>Current server availability.</p>
             </div>
             <div className="product-card" data-testid="status-players">
               <div className="product-top"><span className="badge">Players</span></div>
               <div className="tier-name">
-                {status ? `${status.players_online}/${status.players_max}` : "…"}
+                {status ? (status.unavailable ? "N/A" : `${status.players_online}/${status.players_max}`) : "…"}
               </div>
               <p className="tier-copy" style={{ minHeight: "auto" }}>Players currently online.</p>
             </div>
