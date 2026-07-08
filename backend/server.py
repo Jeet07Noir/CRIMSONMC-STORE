@@ -32,7 +32,7 @@ EMERGENT_SESSION_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/
 # ---------------- Models ----------------
 class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    category: str  # "rank" | "key"
+    category: str  # "rank" | "key" | "bundle"
     name: str
     badge: str
     copy: str
@@ -40,6 +40,7 @@ class Product(BaseModel):
     perks: List[str]
     featured: bool = False
     note: Optional[str] = None
+    includes: List[str] = []
     order: int = 0
 
 
@@ -58,6 +59,7 @@ class StoreConfig(BaseModel):
     upi_id: str = "shiekhjeet19@fam"
     payee_name: str = "Shiekh Jeet"
     qr_image_url: str = "https://customer-assets.emergentagent.com/job_quick-host-deploy/artifacts/7acbako8_IMG_20251207_082918.jpg"
+    logo_url: str = "https://customer-assets.emergentagent.com/job_quick-host-deploy/artifacts/1viv0wa1_server-icon.png"
 
 
 class User(BaseModel):
@@ -74,37 +76,69 @@ class OrderCreate(BaseModel):
 
 
 # ---------------- Seed data ----------------
+SEED_VERSION = 2
+
 RANKS = [
-    ("HABIBI", "Elite", "Top-tier prestige rank with the strongest premium presence.", 1678.9,
-     ["Premium visual status", "Priority store prestige tier", "Best featured placement"], True),
-    ("VOID", "Mythic", "A high-value rank for serious players chasing status.", 1290.0,
-     ["Strong premium identity", "Luxury rank presentation", "High-value progression tier"], False),
-    ("IMMORTAL", "Legend", "Balanced prestige with standout value and strong appeal.", 999.0,
-     ["Popular upgrade choice", "Bold in-store presence", "Great mid-premium option"], False),
-    ("TITAN", "Power", "A powerful rank tier for players moving into premium access.", 699.0,
-     ["Entry premium spotlight", "Strong value positioning", "Popular next-step rank"], False),
-    ("WARRIOR", "Battle", "Affordable rank upgrade for active PvP-focused players.", 321.0,
-     ["Low-cost premium entry", "Easy first upgrade", "Clean step-up option"], False),
-    ("KNIGHT", "Starter", "The easiest premium rank for first-time supporters.", 149.0,
-     ["Budget-friendly unlock", "Simple first purchase", "Good starter support rank"], False),
+    ("HABIBI", "Elite", "The undisputed crown of CrimsonMC — reserved for the elite few who rule the realm.", 1678.9,
+     ["Highest prestige presence", "Priority everywhere on the server", "Elite crimson visual identity"], True),
+    ("VOID", "Mythic", "Command the shadows with a mythic rank feared and respected across the server.", 1290.0,
+     ["Mythic status recognition", "Luxury rank presentation", "Elite tier progression"], False),
+    ("IMMORTAL", "Legend", "Ascend beyond mortality with a legendary tier that radiates unstoppable power.", 999.0,
+     ["Legendary in-store spotlight", "Bold immortal identity", "Premium mid-tier value"], False),
+    ("TITAN", "Power", "Raw dominance forged into a rank for players who crush every challenge.", 699.0,
+     ["Powerful premium spotlight", "Strong value positioning", "Titan-grade presence"], False),
+    ("WARRIOR", "Battle", "Battle-hardened prestige for relentless fighters who never back down.", 321.0,
+     ["Warrior premium entry", "PvP-ready identity", "Clean step-up upgrade"], False),
+    ("KNIGHT", "Starter", "Begin your legend — a noble first step into CrimsonMC's premium ranks.", 149.0,
+     ["Noble starter prestige", "Perfect first upgrade", "Great supporter rank"], False),
 ]
 
 KEYS = [
-    ("ETERNAL KEY", "Rare", "Premium event key designed for stronger seasonal rewards.", 499.0,
-     ["Fits flash sale events", "Premium featured crate", "Strong visual appeal"], None),
-    ("SPAWNERS KEY", "Utility", "Focused on spawner-style rewards and useful unlocks.", 398.0,
-     ["Useful progression crate", "Good event reward option", "Works well in bundle packs"], None),
-    ("PRIME KEY", "Prime", "A refined premium key tier built for headline events.", 420.0,
-     ["Clean premium tier", "Event-ready spotlight", "Works for countdown sales"], None),
-    ("VIP KEY", "Popular", "Affordable premium key for regular buyers and drops.", 300.0,
-     ["Good everyday offer", "Balanced price point", "Easy to promote often"], None),
-    ("COMMON KEY", "Event", "Shown as event-based when key-all or special public events happen.", 1.0,
-     ["Displayed as special note", "Useful for event promotions", "Can be swapped later"], "Given in key-all events"),
+    ("ETERNAL KEY", "Rare", "Unlock timeless, top-tier rewards from the rarest crimson vaults.", 499.0,
+     ["Highest-grade crate rewards", "Rare seasonal loot", "Premium featured drop"], None),
+    ("SPAWNERS KEY", "Utility", "Fuel your empire with powerful spawner rewards and progression loot.", 398.0,
+     ["Spawner-focused rewards", "Strong progression value", "Perfect for bundles"], None),
+    ("PRIME KEY", "Prime", "A refined, headline-worthy crate packed with premium prime rewards.", 420.0,
+     ["Prime-grade rewards", "Event-ready spotlight", "Clean premium tier"], None),
+    ("VIP KEY", "Popular", "The crowd favourite — dependable premium loot, drop after drop.", 300.0,
+     ["Reliable premium loot", "Balanced value", "Everyday favourite"], None),
+    ("COMMON KEY", "Event", "A special event key gifted during key-all celebrations and public drops.", 1.0,
+     ["Exclusive event reward", "Community celebration key", "Limited public drop"], "Given in key-all events"),
+]
+
+# (name, badge, copy, price, perks, includes, featured)
+BUNDLES = [
+    ("STARTER BUNDLE", "Starter",
+     "Kick off your journey with rank prestige and your first premium crate — the smartest way to begin.",
+     399.0, ["Best value first upgrade", "Rank + key combo", "Perfect for new players"],
+     ["Knight Rank", "VIP Key"], False),
+    ("WARRIOR BUNDLE", "Battle",
+     "Gear up for war with a battle rank and a prime crate built to give you the edge.",
+     649.0, ["Battle-ready rank", "Prime crate rewards", "Great PvP value"],
+     ["Warrior Rank", "Prime Key"], False),
+    ("TITAN BUNDLE", "Power",
+     "Dominate the battlefield with titan-tier power and eternal-grade rewards.",
+     999.0, ["Titan prestige", "Eternal crate loot", "High-impact combo"],
+     ["Titan Rank", "Eternal Key"], False),
+    ("IMMORTAL BUNDLE", "Legend",
+     "Rise as a legend with immortal status and a double-crate reward haul.",
+     1499.0, ["Legendary rank", "Two premium crates", "Serious value pack"],
+     ["Immortal Rank", "Spawners Key", "Prime Key"], False),
+    ("VOID BUNDLE", "Mythic",
+     "Master the void with mythic prestige and the realm's most coveted crates.",
+     1899.0, ["Mythic rank", "Elite crate haul", "Top-tier progression"],
+     ["Void Rank", "Eternal Key", "Prime Key"], False),
+    ("HABIBI ULTIMATE BUNDLE", "Ultimate",
+     "The ultimate flex — the crown rank plus a full arsenal of premium crates. Nothing rises above this.",
+     2699.0, ["Crown Habibi rank", "Full crate arsenal", "The absolute best value"],
+     ["Habibi Rank", "Eternal Key", "Spawners Key", "Prime Key", "VIP Key"], True),
 ]
 
 
 async def seed_data():
-    if await db.products.count_documents({}) == 0:
+    meta = await db.meta.find_one({"_id": "seed"}) or {}
+    if meta.get("version") != SEED_VERSION or await db.products.count_documents({}) == 0:
+        await db.products.delete_many({})
         docs = []
         for i, (name, badge, copy, price, perks, featured) in enumerate(RANKS):
             docs.append(Product(category="rank", name=name, badge=badge, copy=copy,
@@ -112,8 +146,13 @@ async def seed_data():
         for i, (name, badge, copy, price, perks, note) in enumerate(KEYS):
             docs.append(Product(category="key", name=name, badge=badge, copy=copy,
                                 price_inr=price, perks=perks, note=note, order=i).model_dump())
+        for i, (name, badge, copy, price, perks, includes, featured) in enumerate(BUNDLES):
+            docs.append(Product(category="bundle", name=name, badge=badge, copy=copy,
+                                price_inr=price, perks=perks, includes=includes,
+                                featured=featured, order=i).model_dump())
         await db.products.insert_many(docs)
-        logger.info("Seeded %d products", len(docs))
+        await db.meta.update_one({"_id": "seed"}, {"$set": {"version": SEED_VERSION}}, upsert=True)
+        logger.info("Seeded %d products (v%d)", len(docs), SEED_VERSION)
     if await db.config.count_documents({}) == 0:
         await db.config.insert_one(StoreConfig().model_dump())
         logger.info("Seeded store config")

@@ -13,7 +13,17 @@ const fmt = (product, currency, rate) =>
     ? `$${(Number(product.price_inr) * (rate || 0.012)).toFixed(2)}`
     : `₹${Number(product.price_inr).toFixed(2)}`;
 
-function BrandMark() {
+function BrandMark({ logo }) {
+  if (logo) {
+    return (
+      <img
+        src={logo}
+        alt="CrimsonMC logo"
+        className="brand-mark brand-logo"
+        data-testid="brand-logo"
+      />
+    );
+  }
   return (
     <div className="brand-mark" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -25,6 +35,7 @@ function BrandMark() {
 }
 
 function ProductCard({ p, currency, rate, onBuy, index }) {
+  const isBundle = p.includes && p.includes.length > 0;
   return (
     <motion.article
       className={`product-card ${p.featured ? "featured" : ""}`}
@@ -40,6 +51,14 @@ function ProductCard({ p, currency, rate, onBuy, index }) {
       </div>
       <div className="tier-name">{p.name}</div>
       <p className="tier-copy">{p.copy}</p>
+      {isBundle && (
+        <div className="bundle-includes">
+          <span className="bundle-includes-label">Includes</span>
+          <div className="bundle-chips">
+            {p.includes.map((it, i) => <span key={i} className="tag-glow">{it}</span>)}
+          </div>
+        </div>
+      )}
       <div className="price-row">
         <div className="price">
           <strong data-testid={`price-${p.name.replace(/\s+/g, "-").toLowerCase()}`}>{fmt(p, currency, rate)}</strong>
@@ -49,9 +68,12 @@ function ProductCard({ p, currency, rate, onBuy, index }) {
           {p.note || "Switch currency any time"}
         </span>
       </div>
-      <ul className="perks">
-        {p.perks.map((perk, i) => <li key={i}>{perk}</li>)}
-      </ul>
+      {!isBundle && (
+        <ul className="perks">
+          {p.perks.map((perk, i) => <li key={i}>{perk}</li>)}
+        </ul>
+      )}
+      {isBundle && <div style={{ flex: 1 }} />}
       <button
         className="button button-primary"
         style={{ width: "100%" }}
@@ -81,6 +103,7 @@ export default function Store() {
 
   const ranks = useMemo(() => products.filter((p) => p.category === "rank"), [products]);
   const keys = useMemo(() => products.filter((p) => p.category === "key"), [products]);
+  const bundles = useMemo(() => products.filter((p) => p.category === "bundle"), [products]);
   const rate = config?.usd_rate || 0.012;
   const featured = ranks.find((r) => r.featured) || ranks[0];
 
@@ -101,7 +124,7 @@ export default function Store() {
       <header className="site-header">
         <div className="container nav">
           <div className="brand">
-            <BrandMark />
+            <BrandMark logo={config?.logo_url} />
             <div className="brand-text">
               <strong>{config?.brand || "CrimsonMC"}</strong>
               <span>{config?.tagline || "Luxury Lava Store"}</span>
@@ -110,8 +133,8 @@ export default function Store() {
           <nav className="nav-links" aria-label="Primary">
             <a href="#ranks" className="hide-sm">Ranks</a>
             <a href="#keys" className="hide-sm">Keys</a>
+            <a href="#bundles" className="hide-sm">Bundles</a>
             <a href="#server" className="hide-sm">Live</a>
-            <a href="#future" className="hide-sm">Bundles</a>
             <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hide-sm">Instagram</a>
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
@@ -227,6 +250,22 @@ export default function Store() {
           </div>
           <div className="grid" id="keysGrid">
             {keys.map((p, i) => (
+              <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Bundles */}
+        <section className="section container" id="bundles">
+          <div className="section-head">
+            <div>
+              <h2>Bundles</h2>
+              <p>Curated rank &amp; crate combos — premium value packs that save you more.</p>
+            </div>
+            <span className="badge">Best value</span>
+          </div>
+          <div className="grid">
+            {bundles.map((p, i) => (
               <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
             ))}
           </div>

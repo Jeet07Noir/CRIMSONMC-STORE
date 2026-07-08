@@ -71,6 +71,10 @@ header.site-header {
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 .brand-mark svg { width: 24px; height: 24px; }
+.brand-logo { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 0 18px rgba(179,18,47,.45); background: #0a0a0a; }
+.bundle-includes { margin: 0 0 1rem; }
+.bundle-includes-label { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .18em; color: var(--faint); margin-bottom: .5rem; }
+.bundle-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .brand-text strong { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: .04em; display: block; }
 .brand-text span { font-size: .72rem; color: var(--faint); text-transform: uppercase; letter-spacing: .22em; }
 .nav-links { display: flex; align-items: center; gap: 1.5rem; }
