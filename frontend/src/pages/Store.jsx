@@ -110,6 +110,7 @@ export default function Store() {
           <nav className="nav-links" aria-label="Primary">
             <a href="#ranks" className="hide-sm">Ranks</a>
             <a href="#keys" className="hide-sm">Keys</a>
+            <a href="#server" className="hide-sm">Live</a>
             <a href="#future" className="hide-sm">Bundles</a>
             <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hide-sm">Instagram</a>
             {user ? (
@@ -228,6 +229,52 @@ export default function Store() {
             {keys.map((p, i) => (
               <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
             ))}
+          </div>
+        </section>
+
+        {/* Live Server Analytics */}
+        <section className="section container" id="server">
+          <div className="section-head">
+            <div>
+              <h2>Live Server</h2>
+              <p>Real-time analytics pulled directly from {config?.server_ip || "play.crimsonmc.in:25569"}.</p>
+            </div>
+            <button
+              className="button button-secondary"
+              onClick={() => axios.get(`${API}/server-status`).then((r) => setStatus(r.data)).catch(() => {})}
+              data-testid="refresh-status-btn"
+            >
+              <Server size={15} /> Refresh
+            </button>
+          </div>
+          <div className="grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+            <div className="product-card" data-testid="status-online">
+              <div className="product-top">
+                <span className="badge">Status</span>
+                <span className={`status-dot ${status?.online ? "on" : "off"}`} />
+              </div>
+              <div className="tier-name" style={{ color: status?.online ? "var(--green-2)" : "var(--crimson-2)" }}>
+                {status ? (status.online ? "ONLINE" : "OFFLINE") : "…"}
+              </div>
+              <p className="tier-copy" style={{ minHeight: "auto" }}>Current server availability.</p>
+            </div>
+            <div className="product-card" data-testid="status-players">
+              <div className="product-top"><span className="badge">Players</span></div>
+              <div className="tier-name">
+                {status ? `${status.players_online}/${status.players_max}` : "…"}
+              </div>
+              <p className="tier-copy" style={{ minHeight: "auto" }}>Players currently online.</p>
+            </div>
+            <div className="product-card" data-testid="status-version">
+              <div className="product-top"><span className="badge">Version</span></div>
+              <div className="tier-name" style={{ fontSize: "1.15rem" }}>{status?.version || "—"}</div>
+              <p className="tier-copy" style={{ minHeight: "auto" }}>Running Minecraft build.</p>
+            </div>
+            <div className="product-card" data-testid="status-ip">
+              <div className="product-top"><span className="badge">Connect</span></div>
+              <div className="tier-name" style={{ fontSize: "1.05rem", wordBreak: "break-all" }}>{config?.server_ip}</div>
+              <p className="tier-copy" style={{ minHeight: "auto" }}>Join with this server IP.</p>
+            </div>
           </div>
         </section>
 
