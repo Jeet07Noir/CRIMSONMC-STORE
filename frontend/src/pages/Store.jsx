@@ -295,7 +295,7 @@ export default function Store() {
               <Server size={15} /> Refresh
             </button>
           </div>
-          <div className="grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+          <div className="grid server-grid">
             <div className="product-card" data-testid="status-online">
               <div className="product-top">
                 <span className="badge">Status</span>

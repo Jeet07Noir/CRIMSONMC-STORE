@@ -198,6 +198,76 @@ header.site-header {
 /* Footer */
 .footer { border-top: 1px solid var(--border); padding: 1.6rem 0; color: var(--faint); font-size: .85rem; }
 
+/* ---------- Premium polish ---------- */
+/* Button sheen sweep */
+.button { position: relative; overflow: hidden; }
+.button-primary::before {
+  content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg); transition: left .6s ease; pointer-events: none;
+}
+.button-primary:hover::before { left: 140%; }
+
+/* Logo pulse glow */
+.brand-logo { animation: logoPulse 3.2s ease-in-out infinite; }
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(179,18,47,.35); }
+  50% { box-shadow: 0 0 26px rgba(228,54,87,.7); }
+}
+
+/* Animated hero title gradient */
+.hero-copy h1 {
+  background-size: 200% auto;
+  animation: heroShift 8s ease infinite;
+}
+@keyframes heroShift {
+  0% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+  100% { background-position: 0% center; }
+}
+
+/* Product card premium hover glow */
+.product-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: 18px; padding: 1px;
+  background: linear-gradient(135deg, transparent, rgba(228,54,87,.5), transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .3s ease; pointer-events: none;
+}
+.product-card:hover::before { opacity: 1; }
+
+/* Featured card animated shimmer */
+.product-card.featured::after { animation: shimmer 5s ease-in-out infinite; }
+@keyframes shimmer {
+  0%, 100% { opacity: .5; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(12%); }
+}
+
+/* Interactive chips */
+.tag-glow { transition: transform .18s ease, background-color .25s ease, border-color .25s ease; }
+.tag-glow:hover { transform: translateY(-2px); background: rgba(65,182,109,.18); }
+
+/* Stat & mini cards hover */
+.stat-card, .mini-card, .panel-box { transition: transform .2s ease, border-color .3s ease; }
+.stat-card:hover, .mini-card:hover { transform: translateY(-3px); border-color: rgba(157,245,166,.35); }
+
+/* Nav link underline sweep */
+.nav-links a { position: relative; }
+.nav-links a::after {
+  content: ""; position: absolute; left: 0; bottom: -4px; height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--crimson-2), var(--green-2)); transition: width .25s ease;
+}
+.nav-links a:hover::after { width: 100%; }
+
+/* Currency toggle micro-interaction */
+.toggle-pill button { transition: color .2s ease, background-color .25s ease, transform .15s ease; }
+.toggle-pill button:active { transform: scale(.94); }
+
+@media (prefers-reduced-motion: reduce) {
+  .particles, .brand-logo, .hero-copy h1, .product-card.featured::after { animation: none !important; }
+}
+
+
 /* Payment modal */
 .payment-modal { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(3,3,3,.75); backdrop-filter: blur(6px); }
 .payment-modal.open { display: flex; animation: fade .25s ease; }
@@ -214,14 +284,24 @@ header.site-header {
 /* Avatar */
 .avatar { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); object-fit: cover; }
 
+.server-grid { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1000px) { .server-grid { grid-template-columns: repeat(2, 1fr); } }
+
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .extras { grid-template-columns: 1fr; }
+  .nav-links { gap: 1rem; }
   .nav-links .hide-sm { display: none; }
+  .section-head { align-items: flex-start; }
 }
 @media (max-width: 620px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid, .server-grid { grid-template-columns: 1fr; }
   .server-bar { grid-template-columns: 1fr; }
   .payment-grid { grid-template-columns: 1fr; }
+  .hero { padding: 2rem 0 .5rem; }
+  .hero-actions .button { flex: 1; }
+  .brand-text span { display: none; }
+  .section { padding: 2.2rem 0; }
 }
