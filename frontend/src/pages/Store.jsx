@@ -1,0 +1,287 @@
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { Instagram, LogOut, Server, Zap } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import PaymentModal from "@/components/store/PaymentModal";
+
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const fmt = (product, currency, rate) =>
+  currency === "USD"
+    ? `$${(Number(product.price_inr) * (rate || 0.012)).toFixed(2)}`
+    : `₹${Number(product.price_inr).toFixed(2)}`;
+
+function BrandMark() {
+  return (
+    <div className="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.5 4.5h-7a6.5 6.5 0 1 0 0 13h7"></path>
+        <path d="M12 8.2c2 0 3.6 1.7 3.6 3.8S14 15.8 12 15.8"></path>
+      </svg>
+    </div>
+  );
+}
+
+function ProductCard({ p, currency, rate, onBuy, index }) {
+  return (
+    <motion.article
+      className={`product-card ${p.featured ? "featured" : ""}`}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: (index % 6) * 0.06 }}
+      data-testid={`product-card-${p.name.replace(/\s+/g, "-").toLowerCase()}`}
+    >
+      <div className="product-top">
+        <span className="badge">{p.badge}</span>
+        {p.featured && <span className="tag-glow">Featured</span>}
+      </div>
+      <div className="tier-name">{p.name}</div>
+      <p className="tier-copy">{p.copy}</p>
+      <div className="price-row">
+        <div className="price">
+          <strong data-testid={`price-${p.name.replace(/\s+/g, "-").toLowerCase()}`}>{fmt(p, currency, rate)}</strong>
+          <span>{currency}</span>
+        </div>
+        <span style={{ color: p.note ? "var(--green-2)" : "var(--muted)", fontSize: ".8rem", textAlign: "right" }}>
+          {p.note || "Switch currency any time"}
+        </span>
+      </div>
+      <ul className="perks">
+        {p.perks.map((perk, i) => <li key={i}>{perk}</li>)}
+      </ul>
+      <button
+        className="button button-primary"
+        style={{ width: "100%" }}
+        onClick={() => onBuy(p)}
+        data-testid={`buy-${p.name.replace(/\s+/g, "-").toLowerCase()}`}
+      >
+        Buy {p.name}
+      </button>
+    </motion.article>
+  );
+}
+
+export default function Store() {
+  const { user, login, logout } = useAuth();
+  const [config, setConfig] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [status, setStatus] = useState(null);
+  const [currency, setCurrency] = useState("INR");
+  const [selected, setSelected] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    axios.get(`${API}/config`).then((r) => setConfig(r.data)).catch(() => {});
+    axios.get(`${API}/products`).then((r) => setProducts(r.data)).catch(() => {});
+    axios.get(`${API}/server-status`).then((r) => setStatus(r.data)).catch(() => {});
+  }, []);
+
+  const ranks = useMemo(() => products.filter((p) => p.category === "rank"), [products]);
+  const keys = useMemo(() => products.filter((p) => p.category === "key"), [products]);
+  const rate = config?.usd_rate || 0.012;
+  const featured = ranks.find((r) => r.featured) || ranks[0];
+
+  const handleBuy = async (p) => {
+    setSelected(p);
+    setModalOpen(true);
+    try {
+      await axios.post(`${API}/orders`, { item: p.name, price_inr: p.price_inr, currency }, { withCredentials: true });
+    } catch (e) { /* order logging is best-effort */ }
+    toast.success(`Scan the QR to buy ${p.name}`);
+  };
+
+  return (
+    <div className="page-shell">
+      <div className="particles" aria-hidden="true" />
+
+      {/* Header */}
+      <header className="site-header">
+        <div className="container nav">
+          <div className="brand">
+            <BrandMark />
+            <div className="brand-text">
+              <strong>{config?.brand || "CrimsonMC"}</strong>
+              <span>{config?.tagline || "Luxury Lava Store"}</span>
+            </div>
+          </div>
+          <nav className="nav-links" aria-label="Primary">
+            <a href="#ranks" className="hide-sm">Ranks</a>
+            <a href="#keys" className="hide-sm">Keys</a>
+            <a href="#future" className="hide-sm">Bundles</a>
+            <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hide-sm">Instagram</a>
+            {user ? (
+              <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
+                {user.picture && <img className="avatar" src={user.picture} alt={user.name} data-testid="user-avatar" />}
+                <button className="button button-ghost" onClick={logout} data-testid="logout-btn">
+                  <LogOut size={15} /> Logout
+                </button>
+              </div>
+            ) : (
+              <button className="button button-primary" onClick={login} data-testid="login-btn">
+                Sign in
+              </button>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      <main id="main">
+        {/* Hero */}
+        <section className="hero">
+          <div className="container hero-grid">
+            <div className="hero-copy">
+              <span className="eyebrow">Premium Minecraft Store • Multi-Currency</span>
+              <h1>{config?.hero_title || "Rule the CrimsonMC"}</h1>
+              <p>{config?.hero_subtitle}</p>
+              <div className="hero-actions">
+                <a className="button button-primary" href="#ranks" data-testid="hero-ranks-btn">View ranks</a>
+                <a className="button button-secondary" href="#keys" data-testid="hero-keys-btn">See keys</a>
+              </div>
+              <div className="server-bar">
+                <div className="stat-card">
+                  <small>Server IP</small>
+                  <strong data-testid="server-ip">{config?.server_ip || "play.crimsonmc.in:25569"}</strong>
+                </div>
+                <div className="stat-card">
+                  <small>Players online</small>
+                  <strong data-testid="players-online">
+                    <span className={`status-dot ${status?.online ? "on" : "off"}`} style={{ marginRight: 8 }} />
+                    {status ? (status.online ? `${status.players_online}/${status.players_max}` : "Offline") : "…"}
+                  </strong>
+                </div>
+                <div className="stat-card">
+                  <small>Primary social</small>
+                  <strong>{config?.instagram_handle || "@Crimsonmc.in"}</strong>
+                </div>
+              </div>
+            </div>
+
+            <aside className="hero-panel" aria-label="Store preview">
+              <div className="panel-top">
+                <div>
+                  <div className="panel-tag">Featured rank</div>
+                  <h2 style={{ margin: ".25rem 0 0", fontSize: "1.5rem", fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: ".06em" }}>
+                    {featured?.name || "Habibi"}
+                  </h2>
+                </div>
+                <span className="tag-glow">Most premium</span>
+              </div>
+              <div className="panel-box">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "1rem" }}>
+                  <div>
+                    <div style={{ fontSize: ".72rem", color: "var(--faint)", textTransform: "uppercase", letterSpacing: ".18em" }}>Current display</div>
+                    <div style={{ fontSize: "2rem", fontWeight: 800, marginTop: ".25rem" }} data-testid="hero-price">
+                      {featured ? fmt(featured, currency, rate) : "—"}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: ".72rem", color: "var(--faint)", textTransform: "uppercase", letterSpacing: ".18em" }}>Currency</div>
+                    <div style={{ fontWeight: 700, marginTop: ".25rem" }}>{currency}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="panel-box">
+                <strong style={{ display: "block", marginBottom: ".45rem" }}>Included look &amp; feel</strong>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: ".55rem" }}>
+                  <span className="tag-glow">Hover glow</span>
+                  <span className="tag-glow">Particles</span>
+                  <span className="tag-glow">Live status</span>
+                  <span className="tag-glow">QR checkout</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        {/* Ranks */}
+        <section className="section container" id="ranks">
+          <div className="section-head">
+            <div>
+              <h2>Ranks</h2>
+              <p>Premium progression tiers with separate INR and USD viewing modes.</p>
+            </div>
+            <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
+              <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="currency-inr">INR</button>
+              <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="currency-usd">USD</button>
+            </div>
+          </div>
+          <div className="grid" id="ranksGrid">
+            {ranks.map((p, i) => (
+              <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Keys */}
+        <section className="section container" id="keys">
+          <div className="section-head">
+            <div>
+              <h2>Keys</h2>
+              <p>Event-ready crate keys and premium unlocks for featured drops.</p>
+            </div>
+            <span className="badge">Common key is event based</span>
+          </div>
+          <div className="grid" id="keysGrid">
+            {keys.map((p, i) => (
+              <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Extras */}
+        <section className="container extras">
+          <div id="future" className="social-box">
+            <span className="eyebrow">Future expansion</span>
+            <h2 style={{ margin: "1rem 0 .75rem", fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem,4vw,2.4rem)", textTransform: "uppercase", letterSpacing: ".06em" }}>
+              Bundles, flash sales &amp; event drops
+            </h2>
+            <p style={{ color: "var(--muted)", margin: 0 }}>
+              The bundles area is planned into the design, so combo packs, sale banners, and limited-time offers can be added without redesigning the page.
+            </p>
+            <div className="future-grid">
+              <div className="mini-card"><strong>Combo bundle slots</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>Starter combo, PvP upgrade & royal crate packs.</p></div>
+              <div className="mini-card"><strong>Countdown banner ready</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>For key-all events, rank sales & festive drops.</p></div>
+              <div className="mini-card"><strong><Zap size={14} style={{ display: "inline", verticalAlign: "middle" }} /> QR payment ready</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>Every buy button opens a scan-and-pay flow.</p></div>
+              <div className="mini-card"><strong><Server size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Live status</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>Real player count from your Minecraft server.</p></div>
+            </div>
+          </div>
+          <aside className="social-box">
+            <span className="eyebrow">Contact</span>
+            <h2 style={{ margin: "1rem 0 .6rem", fontFamily: "var(--font-display)", fontSize: "2rem", textTransform: "uppercase", letterSpacing: ".06em" }}>Instagram first</h2>
+            <p style={{ color: "var(--muted)", margin: "0 0 1rem" }}>The store points visitors to Instagram to confirm purchases and get support.</p>
+            <a className="button button-secondary" href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" style={{ width: "100%" }} data-testid="contact-instagram-btn">
+              <Instagram size={16} /> Open {config?.instagram_handle || "@Crimsonmc.in"}
+            </a>
+            <div className="panel-box" style={{ marginTop: "1rem" }}>
+              <strong style={{ display: "block", marginBottom: ".4rem" }}>Included</strong>
+              <ul className="perks" style={{ margin: 0 }}>
+                <li>Luxury crimson-green lava mood.</li>
+                <li>Featured cards & hover lift animations.</li>
+                <li>Mobile-friendly layout.</li>
+                <li>Live server status & QR checkout.</li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div className="container" style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+          <span>{config?.brand || "CrimsonMC"} Store</span>
+          <span>{config?.server_ip}</span>
+        </div>
+      </footer>
+
+      <PaymentModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        item={selected}
+        config={config}
+        currency={currency}
+      />
+    </div>
+  );
+}

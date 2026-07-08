@@ -1,0 +1,23 @@
+{
+  "summary": "First-finish smoke test of CrimsonMC Store. All 6 backend endpoints and all critical frontend flows (load, currency toggle, buy modal, close) work end-to-end on the public URL.",
+  "tested_scope": ["backend", "frontend", "auth", "integration"],
+  "passed": [
+    "GET /api/config -> 200 with brand=CrimsonMC, server_ip=play.crimsonmc.in:25569, usd_rate, upi_id, instagram fields",
+    "GET /api/products -> 200 returns 11 products (rank+key categories); HABIBI featured=true, price_inr=1678.9",
+    "GET /api/server-status -> 200 online=true, players_online=0, players_max=25, version 1.21.11",
+    "POST /api/orders (anonymous) -> 200 returns order_id + status=pending_qr",
+    "GET /api/auth/me without token -> 401",
+    "GET /api/auth/me with Authorization: Bearer <seeded session_token in test_database> -> 200 returns user",
+    "POST /api/auth/logout deletes session; subsequent /api/auth/me -> 401",
+    "Frontend / loads on public URL; login-btn visible when logged out",
+    "Hero server bar shows live status; ranks (6) + keys grid render (verified visually)",
+    "Currency toggle: hero-price INR ₹1678.90 -> USD $20.15 -> INR ₹1678.90",
+    "Buy HABIBI opens payment-modal with HABIBI name, ₹1678 amount, payment-qr image; close-payment-btn closes it"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "retest_needed": false,
+  "notes": "Console shows 401 on /api/auth/me during initial load — expected behavior when no session cookie is present. Rank/key card testids weren't queried with the exact prefix I guessed, but all 6 rank + 5 key cards render correctly (verified in screenshot and buy-habibi testid works).",
+  "full_testing_deferred": true
+}
