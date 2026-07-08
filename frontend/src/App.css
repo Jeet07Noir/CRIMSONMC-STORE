@@ -71,7 +71,8 @@ header.site-header {
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 .brand-mark svg { width: 24px; height: 24px; }
-.brand-logo { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 0 18px rgba(179,18,47,.45); background: #0a0a0a; }
+.brand-logo { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(228,54,87,.4); box-shadow: 0 0 18px rgba(179,18,47,.45); background: #0a0a0a; }
+.hero-logo { width: 96px; height: 96px; border-radius: 22px; object-fit: cover; margin-bottom: 1.2rem; border: 1px solid rgba(228,54,87,.4); background: #0a0a0a; box-shadow: 0 0 34px rgba(228,54,87,.5); animation: logoPulse 3.2s ease-in-out infinite; }
 .bundle-includes { margin: 0 0 1rem; }
 .bundle-includes-label { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .18em; color: var(--faint); margin-bottom: .5rem; }
 .bundle-chips { display: flex; flex-wrap: wrap; gap: .4rem; }

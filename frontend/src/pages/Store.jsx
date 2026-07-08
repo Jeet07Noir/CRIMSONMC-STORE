@@ -157,6 +157,9 @@ export default function Store() {
         <section className="hero">
           <div className="container hero-grid">
             <div className="hero-copy">
+              {config?.logo_url && (
+                <img src={config.logo_url} alt="CrimsonMC logo" className="hero-logo" data-testid="hero-logo" />
+              )}
               <span className="eyebrow">Premium Minecraft Store • Multi-Currency</span>
               <h1>{config?.hero_title || "Rule the CrimsonMC"}</h1>
               <p>{config?.hero_subtitle}</p>
