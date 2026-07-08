@@ -55,8 +55,9 @@ class StoreConfig(BaseModel):
     instagram: str = "https://instagram.com/Crimsonmc.in"
     instagram_handle: str = "@Crimsonmc.in"
     usd_rate: float = 0.012  # 1 INR -> USD
-    upi_id: str = "crimsonmc@upi"
-    payee_name: str = "CrimsonMC Store"
+    upi_id: str = "shiekhjeet19@fam"
+    payee_name: str = "Shiekh Jeet"
+    qr_image_url: str = "https://customer-assets.emergentagent.com/job_quick-host-deploy/artifacts/7acbako8_IMG_20251207_082918.jpg"
 
 
 class User(BaseModel):

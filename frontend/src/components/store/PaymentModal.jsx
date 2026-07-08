@@ -4,10 +4,11 @@ export default function PaymentModal({ open, onClose, item, config, currency }) 
   if (!item) return null;
   const inr = Number(item.price_inr).toFixed(2);
   const upiString =
-    `upi://pay?pa=${encodeURIComponent(config?.upi_id || "crimsonmc@upi")}` +
-    `&pn=${encodeURIComponent(config?.payee_name || "CrimsonMC")}` +
+    `upi://pay?pa=${encodeURIComponent(config?.upi_id || "shiekhjeet19@fam")}` +
+    `&pn=${encodeURIComponent(config?.payee_name || "Shiekh Jeet")}` +
     `&am=${inr}&cu=INR&tn=${encodeURIComponent(item.name)}`;
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiString)}`;
+  const generatedQr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiString)}`;
+  const qrSrc = config?.qr_image_url || generatedQr;
 
   const display =
     currency === "USD"
@@ -51,7 +52,7 @@ export default function PaymentModal({ open, onClose, item, config, currency }) 
           <div className="payment-mini">
             <strong>UPI ID</strong>
             <p style={{ margin: ".35rem 0 0", color: "var(--green-2)", fontSize: ".9rem", wordBreak: "break-all" }}>
-              {config?.upi_id || "crimsonmc@upi"}
+              {config?.upi_id || "shiekhjeet19@fam"}
             </p>
           </div>
         </div>
