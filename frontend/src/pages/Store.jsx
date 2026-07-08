@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Instagram, LogOut, Server, Zap } from "lucide-react";
+import { Instagram, LogOut, Server, Zap, Copy, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import PaymentModal from "@/components/store/PaymentModal";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const LOGO = "/server-icon.png";
 
 const fmt = (product, currency, rate) =>
   currency === "USD"
@@ -94,6 +96,24 @@ export default function Store() {
   const [currency, setCurrency] = useState("INR");
   const [selected, setSelected] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyIp = async () => {
+    const ip = config?.server_ip || "play.crimsonmc.in:25569";
+    try {
+      await navigator.clipboard.writeText(ip);
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = ip;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    toast.success("Server IP copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     axios.get(`${API}/config`).then((r) => setConfig(r.data)).catch(() => {});
@@ -124,7 +144,7 @@ export default function Store() {
       <header className="site-header">
         <div className="container nav">
           <div className="brand">
-            <BrandMark logo={config?.logo_url} />
+            <BrandMark logo={LOGO} />
             <div className="brand-text">
               <strong>{config?.brand || "CrimsonMC"}</strong>
               <span>{config?.tagline || "Luxury Lava Store"}</span>
@@ -135,6 +155,7 @@ export default function Store() {
             <a href="#keys" className="hide-sm">Keys</a>
             <a href="#bundles" className="hide-sm">Bundles</a>
             <a href="#server" className="hide-sm">Live</a>
+            <Link to="/refund" className="hide-sm" data-testid="nav-refund-link">Refund Policy</Link>
             <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hide-sm">Instagram</a>
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
@@ -157,9 +178,7 @@ export default function Store() {
         <section className="hero">
           <div className="container hero-grid">
             <div className="hero-copy">
-              {config?.logo_url && (
-                <img src={config.logo_url} alt="CrimsonMC logo" className="hero-logo" data-testid="hero-logo" />
-              )}
+              <img src={LOGO} alt="CrimsonMC logo" className="hero-logo" data-testid="hero-logo" />
               <span className="eyebrow">Premium Minecraft Store • Multi-Currency</span>
               <h1>{config?.hero_title || "Rule the CrimsonMC"}</h1>
               <p>{config?.hero_subtitle}</p>
@@ -170,7 +189,12 @@ export default function Store() {
               <div className="server-bar">
                 <div className="stat-card">
                   <small>Server IP</small>
-                  <strong data-testid="server-ip">{config?.server_ip || "play.crimsonmc.in:25569"}</strong>
+                  <div className="ip-row">
+                    <strong data-testid="server-ip">{config?.server_ip || "play.crimsonmc.in:25569"}</strong>
+                    <button className="copy-btn" onClick={copyIp} aria-label="Copy server IP" data-testid="copy-ip-btn">
+                      {copied ? <Check size={15} /> : <Copy size={15} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="stat-card">
                   <small>Players online</small>
@@ -324,7 +348,9 @@ export default function Store() {
             <div className="product-card" data-testid="status-ip">
               <div className="product-top"><span className="badge">Connect</span></div>
               <div className="tier-name" style={{ fontSize: "1.05rem", wordBreak: "break-all" }}>{config?.server_ip}</div>
-              <p className="tier-copy" style={{ minHeight: "auto" }}>Join with this server IP.</p>
+              <button className="button button-secondary" style={{ width: "100%", marginTop: ".4rem" }} onClick={copyIp} data-testid="copy-ip-btn-2">
+                {copied ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy IP</>}
+              </button>
             </div>
           </div>
         </section>
@@ -367,9 +393,12 @@ export default function Store() {
       </main>
 
       <footer className="footer">
-        <div className="container" style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+        <div className="container" style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
           <span>{config?.brand || "CrimsonMC"} Store</span>
-          <span>{config?.server_ip}</span>
+          <div style={{ display: "flex", gap: "1.2rem", alignItems: "center" }}>
+            <Link to="/refund" data-testid="footer-refund-link">Refund Policy</Link>
+            <span>{config?.server_ip}</span>
+          </div>
         </div>
       </footer>
 

@@ -47,11 +47,20 @@ You deploy the **frontend** and **backend** separately, plus a managed **MongoDB
 - After deploy you get a backend URL, e.g. `https://crimsonmc-api.up.railway.app`
 
 ### 3. Frontend — Netlify or Vercel
-- Base directory: `frontend`
-- Build command: `yarn build` · Publish directory: `build`
-- Config files included: `netlify.toml`, `vercel.json`, and `public/_redirects` (SPA routing)
-- Environment variable:
-  - `REACT_APP_BACKEND_URL` = your backend URL from step 2 (no trailing slash)
+
+**IMPORTANT:** `netlify.toml` must be at the **repository root** (it is). It sets base=`frontend`, build=`yarn build`, publish=`build`. If you configure manually instead:
+- **Base directory:** `frontend`
+- **Build command:** `yarn build`
+- **Publish directory:** `frontend/build`
+
+Config files included: root `netlify.toml`, `frontend/vercel.json`, and `frontend/public/_redirects` (SPA routing).
+
+**Required environment variable (set in Netlify/Vercel UI, then trigger a fresh deploy):**
+- `REACT_APP_BACKEND_URL` = your backend URL from step 2, e.g. `https://crimsonmc-api.up.railway.app` (no trailing slash)
+
+> CRA bakes `REACT_APP_*` at BUILD time. If it's missing or you change it, you MUST redeploy for it to take effect. Without a reachable backend the page still loads, but products/status/login won't work.
+
+**Vercel:** set the project **Root Directory** to `frontend` in the UI; `vercel.json` handles SPA rewrites.
 
 ### 4. Custom domain — crimsonmc.in
 Point the domain to your **frontend** host:

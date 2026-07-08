@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import Store from "@/pages/Store";
+import RefundPolicy from "@/pages/RefundPolicy";
 import AuthCallback from "@/components/store/AuthCallback";
 
 function AppRouter() {
@@ -14,6 +15,7 @@ function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Store />} />
+      <Route path="/refund" element={<RefundPolicy />} />
     </Routes>
   );
 }

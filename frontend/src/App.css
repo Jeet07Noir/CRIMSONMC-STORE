@@ -126,6 +126,9 @@ header.site-header {
 }
 .stat-card small { color: var(--faint); text-transform: uppercase; letter-spacing: .14em; font-size: .68rem; }
 .stat-card strong { display: block; margin-top: .3rem; font-size: .95rem; }
+.ip-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .3rem; }
+.copy-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all .18s ease; flex-shrink: 0; }
+.copy-btn:hover { color: var(--green-2); border-color: rgba(157,245,166,.4); transform: translateY(-1px); }
 
 .hero-panel {
   background: linear-gradient(160deg, var(--surface-2), var(--surface));
@@ -198,6 +201,20 @@ header.site-header {
 
 /* Footer */
 .footer { border-top: 1px solid var(--border); padding: 1.6rem 0; color: var(--faint); font-size: .85rem; }
+.footer a { color: var(--muted); transition: color .2s ease; }
+.footer a:hover { color: var(--green-2); }
+
+/* Refund policy page */
+.policy-highlight { display: flex; gap: 1rem; align-items: flex-start; margin: 2rem 0; padding: 1.3rem 1.4rem; border-radius: 16px; background: rgba(65,182,109,.08); border: 1px solid rgba(157,245,166,.28); color: var(--green-2); }
+.policy-highlight strong { display: block; font-size: 1.05rem; color: var(--text); margin-bottom: .3rem; }
+.policy-highlight p { margin: 0; color: var(--muted); }
+.policy-block { margin: 1.8rem 0; }
+.policy-block h2 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: .03em; margin: 0 0 .6rem; }
+.policy-block p { color: var(--muted); margin: 0 0 .6rem; }
+.policy-block ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .5rem; }
+.policy-block li { color: var(--muted); }
+.policy-block b { color: var(--text); }
+.policy-footnote { margin-top: 2rem; padding: 1rem 1.2rem; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
 
 /* ---------- Premium polish ---------- */
 /* Button sheen sweep */
