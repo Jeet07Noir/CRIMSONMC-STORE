@@ -246,7 +246,13 @@ export default function Store() {
               <h2>Keys</h2>
               <p>Event-ready crate keys and premium unlocks for featured drops.</p>
             </div>
-            <span className="badge">Common key is event based</span>
+            <div style={{ display: "flex", gap: ".8rem", alignItems: "center" }}>
+              <span className="badge">Common key is event based</span>
+              <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
+                <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="keys-currency-inr">INR</button>
+                <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="keys-currency-usd">USD</button>
+              </div>
+            </div>
           </div>
           <div className="grid" id="keysGrid">
             {keys.map((p, i) => (
@@ -262,7 +268,10 @@ export default function Store() {
               <h2>Bundles</h2>
               <p>Curated rank &amp; crate combos — premium value packs that save you more.</p>
             </div>
-            <span className="badge">Best value</span>
+            <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
+              <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="bundles-currency-inr">INR</button>
+              <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="bundles-currency-usd">USD</button>
+            </div>
           </div>
           <div className="grid">
             {bundles.map((p, i) => (
