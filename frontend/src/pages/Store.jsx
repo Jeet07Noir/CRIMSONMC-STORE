@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import { Instagram, LogOut, Server, Zap, Copy, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Instagram, LogOut, Server, Zap, Copy, Check, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import PaymentModal from "@/components/store/PaymentModal";
 import { FALLBACK_CONFIG, FALLBACK_PRODUCTS } from "@/data/fallback";
@@ -98,6 +98,7 @@ export default function Store() {
   const [selected, setSelected] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const copyIp = async () => {
     const ip = config?.server_ip || "play.crimsonmc.in:25569";
@@ -123,10 +124,30 @@ export default function Store() {
     axios.get(`${API}/products`)
       .then((r) => setProducts(Array.isArray(r.data) && r.data.length ? r.data : FALLBACK_PRODUCTS))
       .catch(() => setProducts(FALLBACK_PRODUCTS));
-    axios.get(`${API}/server-status`)
-      .then((r) => setStatus(r.data))
-      .catch(() => setStatus({ online: false, players_online: 0, players_max: 0, unavailable: true }));
   }, []);
+
+  // Live status fetched directly from the public Minecraft status API (CORS-enabled),
+  // so it works even when the backend is not deployed.
+  const fetchStatus = useCallback(async (host, port) => {
+    try {
+      const res = await fetch(`https://api.mcsrvstat.us/2/${host}:${port}`);
+      const d = await res.json();
+      setStatus({
+        online: !!d.online,
+        players_online: d.players?.online || 0,
+        players_max: d.players?.max || 0,
+        version: d.version || null,
+      });
+    } catch (e) {
+      setStatus({ online: false, players_online: 0, players_max: 0, unavailable: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    const host = config?.server_host || "play.crimsonmc.in";
+    const port = config?.server_port || 25569;
+    fetchStatus(host, port);
+  }, [config, fetchStatus]);
 
   const ranks = useMemo(() => products.filter((p) => p.category === "rank"), [products]);
   const keys = useMemo(() => products.filter((p) => p.category === "key"), [products]);
@@ -164,21 +185,72 @@ export default function Store() {
             <a href="#server" className="hide-sm">Live</a>
             <Link to="/refund" className="hide-sm" data-testid="nav-refund-link">Refund Policy</Link>
             <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hide-sm">Instagram</a>
-            {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
-                {user.picture && <img className="avatar" src={user.picture} alt={user.name} data-testid="user-avatar" />}
-                <button className="button button-ghost" onClick={logout} data-testid="logout-btn">
-                  <LogOut size={15} /> Logout
+            <div className="auth-actions hide-sm">
+              {user ? (
+                <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
+                  {user.picture && <img className="avatar" src={user.picture} alt={user.name} data-testid="user-avatar" />}
+                  <button className="button button-ghost" onClick={logout} data-testid="logout-btn">
+                    <LogOut size={15} /> Logout
+                  </button>
+                </div>
+              ) : (
+                <button className="button button-primary" onClick={login} data-testid="login-btn">
+                  Sign in
                 </button>
-              </div>
-            ) : (
-              <button className="button button-primary" onClick={login} data-testid="login-btn">
-                Sign in
-              </button>
-            )}
+              )}
+            </div>
+            <button className="menu-toggle show-sm" onClick={() => setMenuOpen(true)} aria-label="Open menu" data-testid="mobile-menu-btn">
+              <Menu size={22} />
+            </button>
           </nav>
         </div>
       </header>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="mobile-menu-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setMenuOpen(false)}
+            data-testid="mobile-menu"
+          >
+            <motion.nav
+              className="mobile-menu"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mobile-menu-head">
+                <span>Menu</span>
+                <button className="icon-button" onClick={() => setMenuOpen(false)} aria-label="Close menu" data-testid="mobile-menu-close">
+                  <X size={18} />
+                </button>
+              </div>
+              <a href="#ranks" onClick={() => setMenuOpen(false)}>Ranks</a>
+              <a href="#keys" onClick={() => setMenuOpen(false)}>Keys</a>
+              <a href="#bundles" onClick={() => setMenuOpen(false)}>Bundles</a>
+              <a href="#server" onClick={() => setMenuOpen(false)}>Live Server</a>
+              <Link to="/refund" onClick={() => setMenuOpen(false)} data-testid="mobile-refund-link">Refund Policy</Link>
+              <a href={config?.instagram || "#"} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>Instagram</a>
+              {user ? (
+                <button className="button button-ghost" onClick={() => { logout(); setMenuOpen(false); }} data-testid="mobile-logout-btn">
+                  <LogOut size={15} /> Logout
+                </button>
+              ) : (
+                <button className="button button-primary" onClick={() => { login(); setMenuOpen(false); }} data-testid="mobile-login-btn">
+                  Sign in
+                </button>
+              )}
+            </motion.nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main id="main">
         {/* Hero */}
@@ -323,7 +395,7 @@ export default function Store() {
             </div>
             <button
               className="button button-secondary"
-              onClick={() => axios.get(`${API}/server-status`).then((r) => setStatus(r.data)).catch(() => {})}
+              onClick={() => fetchStatus(config?.server_host || "play.crimsonmc.in", config?.server_port || 25569)}
               data-testid="refresh-status-btn"
             >
               <Server size={15} /> Refresh
