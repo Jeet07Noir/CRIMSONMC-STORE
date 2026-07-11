@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, LogOut, Server, Zap, Copy, Check, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import PaymentModal from "@/components/store/PaymentModal";
+import { Reveal } from "@/components/Reveal";
 import { FALLBACK_CONFIG, FALLBACK_PRODUCTS } from "@/data/fallback";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -351,13 +352,13 @@ export default function Store() {
 
         {/* Ranks */}
         <section className="section container" id="ranks">
-          <div className="section-head">
+          <Reveal className="section-head">
             <div>
               <h2>Ranks</h2>
               <p>Premium progression tiers with separate INR and USD viewing modes.</p>
             </div>
             <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="ranks" />
-          </div>
+          </Reveal>
           <div className="grid" id="ranksGrid">
             {ranks.map((p, i) => (
               <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
@@ -367,7 +368,7 @@ export default function Store() {
 
         {/* Keys */}
         <section className="section container" id="keys">
-          <div className="section-head">
+          <Reveal className="section-head">
             <div>
               <h2>Keys</h2>
               <p>Event-ready crate keys and premium unlocks for featured drops.</p>
@@ -376,7 +377,7 @@ export default function Store() {
               <span className="badge">Common key is event based</span>
               <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="keys" />
             </div>
-          </div>
+          </Reveal>
           <div className="grid" id="keysGrid">
             {keys.map((p, i) => (
               <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
@@ -386,13 +387,13 @@ export default function Store() {
 
         {/* Bundles */}
         <section className="section container" id="bundles">
-          <div className="section-head">
+          <Reveal className="section-head">
             <div>
               <h2>Bundles</h2>
               <p>Curated rank &amp; crate combos — premium value packs that save you more.</p>
             </div>
             <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="bundles" />
-          </div>
+          </Reveal>
           <div className="grid">
             {bundles.map((p, i) => (
               <ProductCard key={p.id} p={p} currency={currency} rate={rate} onBuy={handleBuy} index={i} />
@@ -402,7 +403,7 @@ export default function Store() {
 
         {/* Live Server Analytics */}
         <section className="section container" id="server">
-          <div className="section-head">
+          <Reveal className="section-head">
             <div>
               <h2>Live Server</h2>
               <p>Real-time analytics pulled directly from {config?.server_ip || "play.crimsonmc.in:25569"}.</p>
@@ -414,7 +415,7 @@ export default function Store() {
             >
               <Server size={15} /> Refresh
             </button>
-          </div>
+          </Reveal>
           <div className="grid server-grid">
             <div className="product-card" data-testid="status-online">
               <div className="product-top">
@@ -450,7 +451,7 @@ export default function Store() {
 
         {/* Extras */}
         <section className="container extras">
-          <div id="future" className="social-box">
+          <Reveal id="future" className="social-box">
             <span className="eyebrow">Future expansion</span>
             <h2 style={{ margin: "1rem 0 .75rem", fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem,4vw,2.4rem)", textTransform: "uppercase", letterSpacing: ".06em" }}>
               Bundles, flash sales &amp; event drops
@@ -464,8 +465,8 @@ export default function Store() {
               <div className="mini-card"><strong><Zap size={14} style={{ display: "inline", verticalAlign: "middle" }} /> QR payment ready</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>Every buy button opens a scan-and-pay flow.</p></div>
               <div className="mini-card"><strong><Server size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Live status</strong><p style={{ margin: ".45rem 0 0", color: "var(--muted)" }}>Real player count from your Minecraft server.</p></div>
             </div>
-          </div>
-          <aside className="social-box">
+          </Reveal>
+          <Reveal className="social-box" delay={0.12}>
             <span className="eyebrow">Contact</span>
             <h2 style={{ margin: "1rem 0 .6rem", fontFamily: "var(--font-display)", fontSize: "2rem", textTransform: "uppercase", letterSpacing: ".06em" }}>Instagram first</h2>
             <p style={{ color: "var(--muted)", margin: "0 0 1rem" }}>The store points visitors to Instagram to confirm purchases and get support.</p>
@@ -481,7 +482,7 @@ export default function Store() {
                 <li>Live server status & QR checkout.</li>
               </ul>
             </div>
-          </aside>
+          </Reveal>
         </section>
       </main>
 

@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend regression after animations refactor (Reveal + AnimatePresence PaymentModal + hero float). All 7 requested flows pass on desktop 1920x4000 and mobile 390x844.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_flows": [
+    "Store loads with 6 ranks, 5 keys, 6 bundles (17 buy buttons total, matches expectation)",
+    "keys-currency-usd toggles prices to $ inside Reveal-wrapped section header",
+    "keys-sort-asc + ranks-sort-desc clicks execute successfully within motion.div",
+    "buy-habibi opens payment-modal (AnimatePresence); QR image loaded (complete=true, naturalWidth=680); UPI id 'shiekhjeet19@fam' present",
+    "close-payment-btn closes modal (count=0 after 1.5s exit animation)",
+    "Overlay click on payment-modal also closes it (count=0)",
+    "players-online element present, shows '0/999' (client-side fetch from api.mcsrvstat.us worked)",
+    "Mobile: mobile-menu-btn opens menu, mobile-refund-link navigates to /refund, refund-48hr block renders"
+  ],
+  "notes": [
+    "First test used 600ms wait post-close which was shorter than AnimatePresence exit; re-test with 1500ms confirmed modal fully unmounts. No bug.",
+    "Console shows some 401 errors from unrelated resource load (likely /api/session or preview auth ping); does not affect any user flow tested.",
+    "Hero logo float + Reveal scroll-in animations render smoothly; no layout shift observed."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Overlay-click-to-close relies on comparing e.target to overlay ref; works fine, but consider e.target===e.currentTarget pattern for clarity if not already."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Animation regression passed. If retesting, allow >=1000ms after close for AnimatePresence exit before asserting modal removal. Live status API can take up to 5s."
+}
