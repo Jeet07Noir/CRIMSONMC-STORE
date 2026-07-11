@@ -76,7 +76,7 @@ class OrderCreate(BaseModel):
 
 
 # ---------------- Seed data ----------------
-SEED_VERSION = 2
+SEED_VERSION = 4
 
 RANKS = [
     ("HABIBI", "Elite", "The undisputed crown of CrimsonMC — reserved for the elite few who rule the realm.", 1678.9,
@@ -94,13 +94,13 @@ RANKS = [
 ]
 
 KEYS = [
-    ("ETERNAL KEY", "Rare", "Unlock timeless, top-tier rewards from the rarest crimson vaults.", 499.0,
+    ("ETERNAL KEY", "Rare", "Unlock timeless, top-tier rewards from the rarest crimson vaults.", 199.0,
      ["Highest-grade crate rewards", "Rare seasonal loot", "Premium featured drop"], None),
-    ("SPAWNERS KEY", "Utility", "Fuel your empire with powerful spawner rewards and progression loot.", 398.0,
-     ["Spawner-focused rewards", "Strong progression value", "Perfect for bundles"], None),
-    ("PRIME KEY", "Prime", "A refined, headline-worthy crate packed with premium prime rewards.", 420.0,
+    ("PRIME KEY", "Prime", "A refined, headline-worthy crate packed with premium prime rewards.", 179.0,
      ["Prime-grade rewards", "Event-ready spotlight", "Clean premium tier"], None),
-    ("VIP KEY", "Popular", "The crowd favourite — dependable premium loot, drop after drop.", 300.0,
+    ("SPAWNERS KEY", "Utility", "Fuel your empire with powerful spawner rewards and progression loot.", 140.0,
+     ["Spawner-focused rewards", "Strong progression value", "Perfect for bundles"], None),
+    ("VIP KEY", "Popular", "The crowd favourite — dependable premium loot, drop after drop.", 100.0,
      ["Reliable premium loot", "Balanced value", "Everyday favourite"], None),
     ("COMMON KEY", "Event", "A special event key gifted during key-all celebrations and public drops.", 1.0,
      ["Exclusive event reward", "Community celebration key", "Limited public drop"], "Given in key-all events"),

@@ -89,12 +89,29 @@ function ProductCard({ p, currency, rate, onBuy, index }) {
   );
 }
 
+function StoreControls({ currency, setCurrency, sort, setSort, idPrefix }) {
+  return (
+    <div className="control-group">
+      <div className="toggle-pill" role="tablist" aria-label="Currency">
+        <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid={`${idPrefix}-currency-inr`}>INR</button>
+        <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid={`${idPrefix}-currency-usd`}>USD</button>
+      </div>
+      <div className="toggle-pill" role="tablist" aria-label="Sort by price">
+        <button className={sort === "default" ? "active" : ""} onClick={() => setSort("default")} data-testid={`${idPrefix}-sort-default`}>Featured</button>
+        <button className={sort === "asc" ? "active" : ""} onClick={() => setSort("asc")} data-testid={`${idPrefix}-sort-asc`}>Price ↑</button>
+        <button className={sort === "desc" ? "active" : ""} onClick={() => setSort("desc")} data-testid={`${idPrefix}-sort-desc`}>Price ↓</button>
+      </div>
+    </div>
+  );
+}
+
 export default function Store() {
   const { user, login, logout } = useAuth();
   const [config, setConfig] = useState(null);
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState(null);
   const [currency, setCurrency] = useState("INR");
+  const [sort, setSort] = useState("default");
   const [selected, setSelected] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -149,11 +166,17 @@ export default function Store() {
     fetchStatus(host, port);
   }, [config, fetchStatus]);
 
-  const ranks = useMemo(() => products.filter((p) => p.category === "rank"), [products]);
-  const keys = useMemo(() => products.filter((p) => p.category === "key"), [products]);
-  const bundles = useMemo(() => products.filter((p) => p.category === "bundle"), [products]);
+  const applySort = useCallback((list) => {
+    if (sort === "asc") return [...list].sort((a, b) => a.price_inr - b.price_inr);
+    if (sort === "desc") return [...list].sort((a, b) => b.price_inr - a.price_inr);
+    return list;
+  }, [sort]);
+
+  const ranks = useMemo(() => applySort(products.filter((p) => p.category === "rank")), [products, applySort]);
+  const keys = useMemo(() => applySort(products.filter((p) => p.category === "key")), [products, applySort]);
+  const bundles = useMemo(() => applySort(products.filter((p) => p.category === "bundle")), [products, applySort]);
   const rate = config?.usd_rate || 0.012;
-  const featured = ranks.find((r) => r.featured) || ranks[0];
+  const featured = products.find((r) => r.category === "rank" && r.featured) || ranks[0];
 
   const handleBuy = async (p) => {
     setSelected(p);
@@ -333,10 +356,7 @@ export default function Store() {
               <h2>Ranks</h2>
               <p>Premium progression tiers with separate INR and USD viewing modes.</p>
             </div>
-            <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
-              <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="currency-inr">INR</button>
-              <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="currency-usd">USD</button>
-            </div>
+            <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="ranks" />
           </div>
           <div className="grid" id="ranksGrid">
             {ranks.map((p, i) => (
@@ -352,12 +372,9 @@ export default function Store() {
               <h2>Keys</h2>
               <p>Event-ready crate keys and premium unlocks for featured drops.</p>
             </div>
-            <div style={{ display: "flex", gap: ".8rem", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: ".8rem", alignItems: "center", flexWrap: "wrap" }}>
               <span className="badge">Common key is event based</span>
-              <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
-                <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="keys-currency-inr">INR</button>
-                <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="keys-currency-usd">USD</button>
-              </div>
+              <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="keys" />
             </div>
           </div>
           <div className="grid" id="keysGrid">
@@ -374,10 +391,7 @@ export default function Store() {
               <h2>Bundles</h2>
               <p>Curated rank &amp; crate combos — premium value packs that save you more.</p>
             </div>
-            <div className="toggle-pill" role="tablist" aria-label="Currency switcher">
-              <button className={currency === "INR" ? "active" : ""} onClick={() => setCurrency("INR")} data-testid="bundles-currency-inr">INR</button>
-              <button className={currency === "USD" ? "active" : ""} onClick={() => setCurrency("USD")} data-testid="bundles-currency-usd">USD</button>
-            </div>
+            <StoreControls currency={currency} setCurrency={setCurrency} sort={sort} setSort={setSort} idPrefix="bundles" />
           </div>
           <div className="grid">
             {bundles.map((p, i) => (

@@ -154,6 +154,7 @@ header.site-header {
 }
 
 /* Currency toggle */
+.control-group { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
 .toggle-pill { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: .25rem; }
 .toggle-pill button {
   border: none; background: transparent; color: var(--muted); padding: .45rem 1.1rem; border-radius: 999px;
